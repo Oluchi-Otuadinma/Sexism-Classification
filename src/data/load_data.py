@@ -24,5 +24,8 @@ def load_raw_csvs(raw_path):
 
         df = pd.read_csv(os.path.join(raw_path, file))
         dfs[var_name] = df
+        
+        globals()[var_name] = df
+
 
     return dfs

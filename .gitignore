@@ -1,3 +1,10 @@
+data/raw/*
+data/processed/*
+outputs/models/*
+outputs/logs/*
+*.env
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

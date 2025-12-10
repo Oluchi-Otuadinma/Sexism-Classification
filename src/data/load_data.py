@@ -29,3 +29,8 @@ def load_raw_csvs(raw_path):
 
 
     return dfs
+
+def load_train_test(train_path, test_path):
+    train_df = load_csv(train_path)
+    test_df = load_csv(test_path)
+    return train_df, test_df

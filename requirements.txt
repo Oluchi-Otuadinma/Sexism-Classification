@@ -8,3 +8,7 @@ uvicorn
 streamlit
 requests
 pandera
+nltk
+shap
+datasets
+tldextract

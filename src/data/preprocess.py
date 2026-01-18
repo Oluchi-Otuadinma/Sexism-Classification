@@ -1,14 +1,15 @@
 import re
 import tldextract
 import nltk
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize, sent _tokenize
+from nltk.stem import WordNetLemmatizer, PorterStemmer
 from nltk.corpus import stopwords
 
 # ----------------------------------------------------------------------
 # Ensure NLTK packages exist (safe to run even if already downloaded)
 # ----------------------------------------------------------------------
 nltk.download("punkt", quiet=True)
+nltk.download("punkt_tab", quiet=True)
 nltk.download("wordnet", quiet=True)
 nltk.download("stopwords", quiet=True)
 

@@ -32,7 +32,7 @@ project-name/
 │   │   └── hf_client.py       # HuggingFace API wrapper
 │   │
 │   └── config/
-│       └── settings.py        # Paths, model name, constants
+│       └── .env              # Paths, model name, constants (HF_TOKEN, DATASET_PATH, MODEL_NAME)
 │
 ├── outputs/
 │   ├── models/          # Saved BERT/saved tokenizer, sklearn .pkl, etc.

@@ -1,35 +1,38 @@
 # Sexism-Classification
 Sexism Classification API service (Hugging Face inference API) exposed through FastAPI
+## Project Structure
 
-
+```text
+project-name/
+│
 ├── data/
-│   ├── raw/               # Original datasets (e.g., Kaggle sexism dataset)
-│   ├── processed/         # Cleaned CSV, tokenized text, train/test splits
-│   └── external/          # Any external datasets or embeddings
+│   ├── raw/           # Original datasets (e.g., Kaggle sexism dataset)
+│   ├── processed/     # Cleaned CSV, tokenized text, train/test splits
+│   └── external/      # Any external datasets or embeddings
 │
 ├── notebooks/
-│   ├── 01_exploration.ipynb        # EDA in Colab
-│   ├── 02_preprocessing.ipynb      # Cleaning, balancing, label encoding
-│   ├── 03_modeling.ipynb           # Train LogReg/SVM/CNN/BERT
-│   ├── 04_evaluation.ipynb         # Metrics, confusion matrix
-│   └── 05_export_model.ipynb       # Convert to HF format + push to hub
+│   ├── 01_exploration.ipynb    # EDA in Colab
+│   ├── 02_preprocessing.ipynb  # Cleaning, balancing, label encoding
+│   ├── 03_modeling.ipynb       # Train LogReg/SVM/CNN/BERT
+│   ├── 04_evaluation.ipynb     # Metrics, confusion matrix
+│   └── 05_export_model.ipynb   # Convert to HF format + push to hub
 │
 ├── src/
 │   ├── data/
-│   │   ├── load_data.py           # Data loading utilities
-│   │   └── preprocess.py          # Text cleaning, tokenization
+│   │   ├── load_data.py       # Data loading utilities
+│   │   └── preprocess.py      # Text cleaning, tokenization
 │   │
 │   ├── models/
-│   │   ├── train.py               # Training utilities
-│   │   ├── predict.py             # Prediction wrapper
-│   │   └── utils.py               # Shared NLP helpers
+│   │   ├── train.py           # Training utilities
+│   │   ├── predict.py         # Prediction wrapper
+│   │   └── utils.py           # Shared NLP helpers
 │   │
 │   ├── api/
-│   │   ├── fastapi_main.py        # Your FastAPI backend
-│   │   └── hf_client.py           # HuggingFace API wrapper
+│   │   ├── fastapi_main.py    # Your FastAPI backend
+│   │   └── hf_client.py       # HuggingFace API wrapper
 │   │
 │   └── config/
-│       └── settings.py            # Paths, model name, constants
+│       └── settings.py        # Paths, model name, constants
 │
 ├── outputs/
 │   ├── models/          # Saved BERT/saved tokenizer, sklearn .pkl, etc.

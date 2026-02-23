@@ -54,7 +54,9 @@ class TextInput(BaseModel):
         min_length=1,
         max_length=5000,
         description="Text to analyze for sexist content",
-        example="This is a sample text for classification"
+        json_schema_extra={
+            "example": "This is a sample text for classification"
+        }
     )
     
     @validator('text')
@@ -69,10 +71,12 @@ class BatchTextInput(BaseModel):
     """Multiple texts for batch prediction."""
     texts: List[str] = Field(
         ...,
-        min_items=1,
-        max_items=100,
+        min_length=1,
+        max_length=100,
         description="List of texts to analyze",
-        example=["Text 1", "Text 2", "Text 3"]
+        json_schema_extra={
+            "example": ["Text 1", "Text 2", "Text 3"]
+        }
     )
     
     @validator('texts')

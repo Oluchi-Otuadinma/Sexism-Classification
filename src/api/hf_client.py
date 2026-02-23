@@ -16,7 +16,7 @@ from functools import lru_cache
 
 import requests
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from urllib3.util.retry import Retry
 
 # Configure logging
 logging.basicConfig(
@@ -35,7 +35,7 @@ except ImportError:
     HF_MODEL = os.getenv("HF_MODEL", "")
 
 # Constants
-API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
+API_URL = f"https://router.huggingface.co/hf-inference/models/{HF_MODEL}"
 HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"}
 MAX_TEXT_LENGTH = 5000  # Truncate very long texts
 CACHE_SIZE = 1000  # LRU cache size

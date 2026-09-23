@@ -16,7 +16,7 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from src.api.hf_client import get_client
 
@@ -59,7 +59,8 @@ class TextInput(BaseModel):
         }
     )
     
-    @validator('text')
+    @field_validator('text')
+    @classmethod
     def text_must_not_be_empty(cls, v):
         """Validate that text is not just whitespace."""
         if not v.strip():
@@ -79,7 +80,8 @@ class BatchTextInput(BaseModel):
         }
     )
     
-    @validator('texts')
+    @field_validator('texts')
+    @classmethod
     def validate_texts(cls, v):
         """Validate each text in the batch."""
         validated = []

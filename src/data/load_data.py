@@ -276,6 +276,32 @@ class DataLoader:
     
 
 # Convenience functions
+def load_raw_csvs(raw_dir) -> dict:
+    """
+    Load all raw EDOS split CSVs (train/dev/test) from a directory.
+
+    Args:
+        raw_dir: Directory containing the raw split CSVs.
+
+    Returns:
+        Dict keyed by split name, e.g. {'train': df, 'dev': df, 'test': df}.
+        Only includes files that exist; keys follow the 'split' column values.
+    """
+    from pathlib import Path
+
+    raw_dir = Path(raw_dir)
+    splits = {}
+    for name in ("train", "dev", "test"):
+        path = raw_dir / f"{name}.csv"
+        if path.exists():
+            df = pd.read_csv(path)
+            df.attrs["split_name"] = name
+            splits[name] = df
+    if not splits:
+        raise FileNotFoundError(f"No train/dev/test CSVs found in {raw_dir}")
+    return splits
+
+
 def load_raw_data(filename: str, **kwargs) -> pd.DataFrame:
     """Load raw dataset (convenience function)."""
     loader = DataLoader()

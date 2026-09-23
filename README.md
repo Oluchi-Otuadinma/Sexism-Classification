@@ -2,6 +2,8 @@
 
 A production-ready machine learning API for detecting sexist content in text, built with FastAPI and HuggingFace Transformers.
 
+[![CI](https://github.com/Oluchi-Otuadinma/Sexism-Classification/actions/workflows/ci.yml/badge.svg)](https://github.com/Oluchi-Otuadinma/Sexism-Classification/actions/workflows/ci.yml)
+
 ## 🎯 Project Overview
 
 This project provides:
@@ -207,15 +209,12 @@ Interactive API documentation available at:
 
 ## 🧪 Testing
 
-Run the test suite:
+Run the test suite (API endpoints with a mocked HuggingFace client, plus preprocessing utilities):
 ```bash
 pytest tests/ -v
 ```
 
-Run specific test file:
-```bash
-python test_api.py
-```
+CI runs the suite automatically on every push via GitHub Actions.
 
 ## 📈 Model Training
 
@@ -294,18 +293,14 @@ See `.env.example` for all available options.
 
 ## 📊 Performance
 
+### Model Performance
+Model training is tracked in [TODO.md](TODO.md) — once the baseline is trained, `04_evaluation.ipynb` reports accuracy/F1/precision/recall on a held-out split, and this section will be filled with the final numbers.
+
 ### API Performance
 - Cached requests: ~50ms
 - Uncached requests: ~400-700ms
 - Batch (10 items): ~2000ms
 - Cache hit rate: ~30-50%
-
-### Model Performance
-(Update with your model's actual performance)
-- Accuracy: XX%
-- F1 Score: XX%
-- Precision: XX%
-- Recall: XX%
 
 ## 🚢 Deployment
 

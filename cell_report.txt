@@ -1,0 +1,57 @@
+== notebooks\01_exploration.ipynb 16 cells
+  [0] code 72ch: '!git clone https://github.com/Oluchi-Otuadinma/Sexism-Classification.git'
+  [1] code 115ch: 'import matplotlib.pyplot as plt\nimport seaborn as sns\nimport pandas as pd\nimport re\nfrom collections'
+  [2] code 168ch: 'import sys\nimport os\n\nPROJECT_PATH = "/content/Sexism-Classification" if os.path.exists("/content/Se'
+  [3] code 114ch: 'from src.data.load_data import load_raw_csvs\n\nRAW_PATH = f"{PROJECT_PATH}/data/raw"\n\ndfs = load_raw_'
+  [4] code 10ch: 'dfs.keys()'
+  [5] code 56ch: "train = dfs['train']\ntest = dfs['test']\ndev = dfs['dev']"
+  [6] code 18ch: 'print(test.head())'
+  [7] code 19ch: 'print(train.head())'
+  [8] code 17ch: 'print(dev.head())'
+  [9] markdown 12ch: '#Exploration'
+  [10] code 242ch: 'print("Train DF Info:")\ntrain.info()\nprint("\\nTrain DF Head:")\nprint(train.head())\n\nprint("\\nDev DF '
+  [11] code 221ch: '# Check for missing values\nprint("\\nMissing values in Train DF:")\nprint(train.isnull().sum())\nprint('
+  [12] code 505ch: "plt.figure(figsize=(15, 5))\n\nplt.subplot(1, 3, 1)\nsns.countplot(data=train, x='label_sexist')\nplt.ti"
+  [13] code 619ch: "def get_top_ngrams(corpus, n=1, top_k=20):\n    words = re.findall(r'\\b\\w+\\b', ' '.join(corpus).lower"
+  [14] code 1965ch: "positive_label_value = 'sexist'\nnegative_label_value = 'not sexist'\n\n# Filter texts based on the 'la"
+  [15] code 1007ch: 'def plot_ngrams(ngram_list, title):\n    if not ngram_list:\n        print(f"No n-grams to plot for: {'
+== notebooks\02_preprocessing.ipynb 11 cells
+  [0] code 107ch: '!git clone https://github.com/Oluchi-Otuadinma/Sexism-Classification.git\n%cd /content/Sexism-Classif'
+  [1] code 9ch: '!git pull'
+  [2] code 3ch: '!ls'
+  [3] code 31ch: 'pip install -r requirements.txt'
+  [4] code 168ch: 'import sys\nimport os\n\nPROJECT_PATH = "/content/Sexism-Classification" if os.path.exists("/content/Se'
+  [5] code 114ch: 'from src.data.load_data import load_raw_csvs\n\nRAW_PATH = f"{PROJECT_PATH}/data/raw"\n\ndfs = load_raw_'
+  [6] code 56ch: "train = dfs['train']\ntest = dfs['test']\ndev = dfs['dev']"
+  [7] code 19ch: 'list(train.columns)'
+  [8] code 268ch: "import pandera.pandas as pa\n\nschema = pa.DataFrameSchema({\n     'rewire_id': pa.Column(str),\n     't"
+  [9] code 65ch: 'schema.validate(train)\nschema.validate(test)\nschema.validate(dev)'
+  [10] code 1454ch: 'from nltk.tokenize import word_tokenize, sent_tokenize\nfrom nltk.corpus import stopwords\nfrom nltk.s'
+== notebooks\03_modeling.ipynb 7 cells
+  [0] markdown 262ch: '# 03 — Modeling\n\n**Model training.** Trains the TF-IDF + Logistic Regression baseline on the process'
+  [1] markdown 8ch: '## Setup'
+  [2] code 162ch: 'import sys, os\n\nPROJECT_PATH = "/content/Sexism-Classification" if os.path.exists("/content/Sexism-C'
+  [3] code 191ch: 'from src.config.settings import PROCESSED_DATA_DIR, MODELS_DIR\nMODELS_DIR.mkdir(parents=True, exist_'
+  [4] markdown 230ch: '## Train the baseline\n\nUses `src.models.train.train_classifier`: TF-IDF (unigrams+bigrams, max 5000 '
+  [5] code 130ch: 'from src.models.train import train_classifier\n\ntrain_classifier(\n    str(PROCESSED_DATA_DIR / "train'
+  [6] markdown 343ch: '## (Planned) BERT fine-tuning\n\nConfiguration is already wired in `settings.py`:\n\n- `BERT_MODEL_NAME`'
+== notebooks\04_evaluation.ipynb 10 cells
+  [0] markdown 191ch: '# 04 — Evaluation\n\n**Model evaluation.** Loads the trained baseline from `outputs/models/` and evalu'
+  [1] markdown 8ch: '## Setup'
+  [2] code 262ch: 'import sys, os\n\nPROJECT_PATH = "/content/Sexism-Classification" if os.path.exists("/content/Sexism-C'
+  [3] code 246ch: 'from src.config.settings import PROCESSED_DATA_DIR, TEXT_COLUMN, LABEL_COLUMN\nfrom src.models.predic'
+  [4] markdown 28ch: '## Evaluate on held-out data'
+  [5] code 697ch: 'import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom src.config.settings im'
+  [6] markdown 19ch: '## Confusion matrix'
+  [7] code 349ch: 'preds = model.predict(X_test)\ncm = confusion_matrix(y_test, preds, labels=model.classes_)\n\nplt.figur'
+  [8] markdown 156ch: '## Error analysis\n\nInspect the misclassified examples to spot preprocessing gaps, label noise, or ha'
+  [9] code 204ch: 'test_df = test_df.assign(pred=preds)\nerrors = test_df[test_df[LABEL_COLUMN] != test_df["pred"]]\nprin'
+== notebooks\05_export_model.ipynb 8 cells
+  [0] markdown 345ch: '# 05 — Export to HuggingFace\n\n**Export the trained model to the HuggingFace Hub** and wire it into t'
+  [1] markdown 8ch: '## Setup'
+  [2] code 162ch: 'import sys, os\n\nPROJECT_PATH = "/content/Sexism-Classification" if os.path.exists("/content/Sexism-C'
+  [3] code 208ch: 'from huggingface_hub import HfApi\nfrom src.config.settings import HF_TOKEN, MODELS_DIR\n\nassert HF_TO'
+  [4] markdown 45ch: '## Create the repo and upload the model files'
+  [5] code 353ch: 'REPO_ID = "your-username/sexism-classifier"  # <- change me\n\napi.create_repo(repo_id=REPO_ID, repo_t'
+  [6] markdown 38ch: '## Point the API at the deployed model'
+  [7] code 298ch: '# In your .env:\n#   HF_MODEL=<REPO_ID>\n#   HF_API_KEY=<your HF inference token>\n#\n# Then restart the'

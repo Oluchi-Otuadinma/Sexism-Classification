@@ -15,10 +15,10 @@ This project provides:
 ## 📁 Project Structure
 
 ```
-project-name/
+sexism-classification/
 │
 ├── data/
-│   ├── raw/           # Original datasets
+│   ├── raw/           # Original datasets (dev.csv committed; train/test via kagglehub loader)
 │   ├── processed/     # Cleaned and split data
 │   └── external/      # External datasets
 │
@@ -26,12 +26,14 @@ project-name/
 │   ├── 01_exploration.ipynb      # Exploratory Data Analysis
 │   ├── 02_preprocessing.ipynb    # Data cleaning
 │   ├── 03_modeling.ipynb         # Model training
-│   ├── 04_evaluation.ipynb       # Model evaluation
+│   ├── 04_evaluation.ipynb       # Model evaluation + BERTweet fine-tuning
 │   └── 05_export_model.ipynb     # Export to HuggingFace
 │
 ├── src/
 │   ├── data/
 │   │   ├── load_data.py          # Data loading utilities
+│   │   ├── load_kaggle.py        # EDOS splits via kagglehub
+│   │   ├── clean_domain_aware.py # Domain-aware cleaning (URL → domain features)
 │   │   └── preprocess.py         # Text preprocessing
 │   │
 │   ├── models/
@@ -40,20 +42,28 @@ project-name/
 │   │   └── utils.py              # Helper functions
 │   │
 │   ├── api/
-│   │   ├── fastapi_main.py       # FastAPI application
-│   │   └── hf_client.py          # HuggingFace client
+│   │   ├── fastapi_main.py       # FastAPI application (lifespan model loading)
+│   │   ├── model_manager.py      # Local BERTweet inference manager
+│   │   └── hf_client.py          # HuggingFace Inference API client (fallback backend)
 │   │
 │   └── config/
 │       ├── settings.py           # Configuration
-│       └── .env                  # Environment variables (not in git)
+│       └── .env                  # Environment variables (not in git — see .env.example)
 │
 ├── outputs/
-│   ├── models/        # Saved models
+│   ├── models/        # Saved models (bertweet-sexism/ checkpoint for the API)
 │   ├── logs/          # Training logs
 │   ├── reports/       # Evaluation reports
 │   └── inference/     # API outputs
 │
+├── tests/             # pytest suite (API + preprocessing)
+├── .github/
+│   └── workflows/
+│       └── ci.yml     # GitHub Actions CI
+│
 ├── requirements.txt   # Python dependencies
+├── .env.example       # Environment variable template
+├── TODO.md            # Known issues / roadmap
 ├── .gitignore
 ├── README.md
 └── Dockerfile         # For deployment

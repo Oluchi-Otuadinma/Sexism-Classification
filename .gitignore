@@ -1,8 +1,14 @@
 data/raw/*
+!data/raw/dev.csv
 data/processed/*
+!data/processed/.gitkeep
 outputs/models/*
+!outputs/models/.gitkeep
 outputs/logs/*
+!outputs/logs/.gitkeep
 *.env
+*.env.*
+!.env.example
 
 
 # Byte-compiled / optimized / DLL files

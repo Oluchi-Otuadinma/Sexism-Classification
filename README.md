@@ -255,17 +255,17 @@ Configuration is managed through `src/config/settings.py` and environment variab
 
 Key settings:
 - `PREPROCESSING_PRESET`: "minimal", "standard", or "aggressive"
-- `BERT_MODEL_NAME`: Base model for fine-tuning
-- `MAX_LENGTH`: Maximum sequence length
-- `BATCH_SIZE`: Training batch size
-- `LEARNING_RATE`: Optimizer learning rate
-- `CACHE_SIZE`: Number of predictions to cache
+- `INFERENCE_BACKEND`: "local" (transformers, loaded at startup via lifespan) or "hf_api" (HuggingFace Inference API)
+- `MODEL_ID`: base model to download and attach a fresh classification head to (default `vinai/bertweet-base`)
+- `LOCAL_MODEL_DIR`: fine-tuned checkpoint directory — loaded instead of `MODEL_ID` when present (default `outputs/models/bertweet-sexism`)
+- `PRELOAD_MODEL`: load the model at startup (`True`) or defer to the first request (`False`)
 
 See `.env.example` for all available options.
 
 ## 🎁 Features
 
 ### API Features
+- ✅ Model loaded at startup via FastAPI **lifespan** (local BERTweet inference, `vinai/bertweet-base` + classification head)
 - ✅ Async endpoints for high concurrency
 - ✅ Request/response caching (LRU)
 - ✅ Retry logic with exponential backoff

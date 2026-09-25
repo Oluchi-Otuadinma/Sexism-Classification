@@ -1,4 +1,10 @@
-"""API endpoint tests with a mocked HuggingFace client."""
+"""API endpoint tests with a mocked model manager.
+
+The model is normally loaded at startup by the FastAPI lifespan handler
+(BERTweet via AutoModelForSequenceClassification); here PRELOAD_MODEL=false
+(see conftest.py) keeps tests hermetic and each test mocks the manager's
+predict method instead.
+"""
 import pytest
 from fastapi.testclient import TestClient
 
@@ -6,7 +12,7 @@ from src.api import fastapi_main
 
 
 class MockClient:
-    """Stands in for HuggingFaceClient."""
+    """Stands in for ModelManager (duck-typed: predict/get_cache_stats/clear_cache)."""
 
     def __init__(self):
         self.calls = []
@@ -16,6 +22,16 @@ class MockClient:
         if text == "boom":
             return {"error": "inference failed"}
         return {"label": "sexist", "confidence": 0.93, "cached": False}
+
+    def info(self):
+        return {
+            "backend": "local",
+            "model_id": "vinai/bertweet-base",
+            "loaded": False,
+            "device": "cpu",
+            "fresh_head": True,
+            "labels": ["not sexist", "sexist"],
+        }
 
     def get_cache_stats(self):
         return {"hits": 0, "misses": 0, "size": 0}
@@ -27,8 +43,11 @@ class MockClient:
 @pytest.fixture()
 def client(monkeypatch):
     mock = MockClient()
-    monkeypatch.setattr(fastapi_main, "get_client", lambda: mock)
     with TestClient(fastapi_main.app) as c:
+        # Replace the lifespan-created manager's methods with the mock
+        monkeypatch.setattr(c.app.state.model_manager, "predict", mock.predict)
+        monkeypatch.setattr(c.app.state.model_manager, "get_cache_stats", mock.get_cache_stats)
+        monkeypatch.setattr(c.app.state.model_manager, "clear_cache", mock.clear_cache)
         yield c, mock
 
 
@@ -82,3 +101,22 @@ def test_cache_stats(client):
     c, _ = client
     r = c.get("/cache/stats")
     assert r.status_code == 200
+
+
+def test_health_reports_model_info(client):
+    c, _ = client
+    r = c.get("/health")
+    assert r.status_code == 200
+    model = r.json().get("model")
+    assert model is not None
+    assert model["backend"] == "local"
+    assert model["model_id"] == "vinai/bertweet-base"
+    assert model["loaded"] is False  # PRELOAD_MODEL=false in tests
+
+
+def test_lifespan_creates_model_manager(client):
+    """The lifespan handler must attach a ModelManager to app.state at startup."""
+    c, _ = client
+    from src.api.model_manager import ModelManager
+
+    assert isinstance(c.app.state.model_manager, ModelManager)

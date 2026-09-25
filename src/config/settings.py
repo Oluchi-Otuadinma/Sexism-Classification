@@ -72,6 +72,15 @@ API_PORT: int = int(os.getenv("API_PORT", "8000"))
 API_WORKERS: int = int(os.getenv("API_WORKERS", "1"))
 API_RELOAD: bool = os.getenv("API_RELOAD", "True").lower() == "true"
 
+# Inference backend: "local" (transformers, loaded via FastAPI lifespan) or "hf_api" (HuggingFace Inference API)
+INFERENCE_BACKEND: str = os.getenv("INFERENCE_BACKEND", "local")
+# Pre-trained base model; a fresh classification head is attached on load
+MODEL_ID: str = os.getenv("MODEL_ID", "vinai/bertweet-base")
+# Fine-tuned checkpoint directory — loaded INSTEAD of MODEL_ID if it contains a saved model
+LOCAL_MODEL_DIR: str = os.getenv("LOCAL_MODEL_DIR", str(MODELS_DIR / "bertweet-sexism"))
+# Download/load the model at startup (lifespan). Set false to defer to first request.
+PRELOAD_MODEL: bool = os.getenv("PRELOAD_MODEL", "True").lower() == "true"
+
 # Logging Configuration
 LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
 LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

@@ -11,6 +11,7 @@ Enhanced FastAPI application for sexism detection with:
 
 import logging
 import time
+from contextlib import asynccontextmanager
 from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, Query, Request
@@ -19,6 +20,14 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 
 from src.api.hf_client import get_client
+from src.api.model_manager import ModelManager
+from src.config.settings import (
+    INFERENCE_BACKEND,
+    LOCAL_MODEL_DIR,
+    MODEL_ID,
+    PRELOAD_MODEL,
+    CACHE_SIZE,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -27,6 +36,47 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# ------------------------------------------------------------------ lifespan
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Load the model at startup and release it at shutdown.
+
+    Local backend (default): creates a ModelManager which downloads the
+    pre-trained Transformer weights (vinai/bertweet-base) and attaches a
+    fresh classification head (a linear layer outputting probabilities
+    across the target classes), unless a fine-tuned checkpoint exists at
+    LOCAL_MODEL_DIR. Set PRELOAD_MODEL=false to defer the download until
+    the first request.
+
+    Set INFERENCE_BACKEND=hf_api to use the HuggingFace Inference API
+    instead of running the model locally.
+    """
+    if INFERENCE_BACKEND == "hf_api":
+        logger.info("Inference backend: HuggingFace Inference API")
+        app.state.model_manager = get_client()
+    else:
+        logger.info("Inference backend: local transformer")
+        manager = ModelManager(
+            model_id=MODEL_ID,
+            num_labels=2,
+            checkpoint_dir=LOCAL_MODEL_DIR,
+            cache_size=CACHE_SIZE,
+        )
+        if PRELOAD_MODEL:
+            manager.load()
+        else:
+            logger.info("PRELOAD_MODEL=false — model will load on first request")
+        app.state.model_manager = manager
+
+    yield
+
+    # Shutdown: release model memory
+    manager = getattr(app.state, "model_manager", None)
+    if manager is not None and hasattr(manager, "shutdown"):
+        manager.shutdown()
+
+
 # Initialize FastAPI app with metadata
 app = FastAPI(
     title="Sexism Detection API",
@@ -34,6 +84,7 @@ app = FastAPI(
     version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Add CORS middleware
@@ -120,6 +171,7 @@ class HealthResponse(BaseModel):
     version: str
     uptime_seconds: float
     cache_stats: dict
+    model: Optional[dict] = None
 
 
 class ErrorResponse(BaseModel):
@@ -168,21 +220,23 @@ async def root():
 
 
 @app.get("/health", response_model=HealthResponse, tags=["General"])
-async def health():
+async def health(request: Request):
     """
     Health check endpoint.
     
-    Returns API status, version, uptime, and cache statistics.
+    Returns API status, version, uptime, model info, and cache statistics.
     """
     try:
-        client = get_client()
-        cache_stats = client.get_cache_stats()
+        manager = request.app.state.model_manager
+        cache_stats = manager.get_cache_stats()
+        model_info = manager.info() if hasattr(manager, "info") else {"backend": "hf_api"}
         
         return {
             "status": "healthy",
             "version": "2.0.0",
             "uptime_seconds": time.time() - start_time,
-            "cache_stats": cache_stats
+            "cache_stats": cache_stats,
+            "model": model_info,
         }
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
@@ -207,6 +261,7 @@ async def health():
 )
 async def predict(
     input: TextInput,
+    request: Request,
     min_confidence: Optional[float] = Query(
         None,
         ge=0.0,
@@ -225,9 +280,9 @@ async def predict(
     try:
         start = time.time()
         
-        # Get prediction
-        client = get_client()
-        result = client.predict(input.text)
+        # Get prediction from the model loaded at startup (lifespan)
+        manager = request.app.state.model_manager
+        result = manager.predict(input.text)
         
         processing_time = (time.time() - start) * 1000  # Convert to milliseconds
         
@@ -295,7 +350,7 @@ async def predict(
     response_model=BatchPredictionResponse,
     tags=["Prediction"]
 )
-async def predict_batch(input: BatchTextInput):
+async def predict_batch(input: BatchTextInput, request: Request):
     """
     Predict sexist content for multiple texts in one request.
     
@@ -307,7 +362,7 @@ async def predict_batch(input: BatchTextInput):
     try:
         start = time.time()
         
-        client = get_client()
+        manager = request.app.state.model_manager
         predictions = []
         success_count = 0
         error_count = 0
@@ -315,7 +370,7 @@ async def predict_batch(input: BatchTextInput):
         # Process each text
         for text in input.texts:
             try:
-                result = client.predict(text)
+                result = manager.predict(text)
                 
                 if "error" in result:
                     error_count += 1
@@ -363,15 +418,14 @@ async def predict_batch(input: BatchTextInput):
 
 
 @app.post("/cache/clear", tags=["Admin"])
-async def clear_cache():
+async def clear_cache(request: Request):
     """
     Clear the prediction cache.
     
     Use this endpoint to force fresh predictions for all texts.
     """
     try:
-        client = get_client()
-        client.clear_cache()
+        request.app.state.model_manager.clear_cache()
         return {"message": "Cache cleared successfully"}
     except Exception as e:
         logger.exception(f"Cache clear failed: {str(e)}")
@@ -382,15 +436,14 @@ async def clear_cache():
 
 
 @app.get("/cache/stats", tags=["Admin"])
-async def cache_stats():
+async def cache_stats(request: Request):
     """
     Get cache statistics.
     
     Returns information about cache hits, misses, and hit rate.
     """
     try:
-        client = get_client()
-        return client.get_cache_stats()
+        return request.app.state.model_manager.get_cache_stats()
     except Exception as e:
         logger.exception(f"Cache stats failed: {str(e)}")
         raise HTTPException(

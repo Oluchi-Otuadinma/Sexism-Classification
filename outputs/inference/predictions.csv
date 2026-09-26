@@ -1,0 +1,5 @@
+text,predicted_label,confidence
+She is a brilliant engineer and team leader,not sexist,0.7191
+Get back to the kitchen where you belong,not sexist,0.7599
+The quarterly results were announced today,not sexist,0.7863
+Women are too emotional to lead companies,sexist,0.8086

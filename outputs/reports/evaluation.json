@@ -1,0 +1,16 @@
+{
+  "dataset": "EDOS test split (n=4000)",
+  "accuracy": 0.795,
+  "f1_weighted": 0.8008,
+  "f1_sexist": 0.615,
+  "confusion_matrix": [
+    [
+      2525,
+      505
+    ],
+    [
+      315,
+      655
+    ]
+  ]
+}

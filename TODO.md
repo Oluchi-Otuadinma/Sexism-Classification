@@ -24,7 +24,7 @@
 - [ ] **Run BERTweet fine-tuning (GPU).** Notebook `04_evaluation.ipynb` has the complete cells: `AutoModelForSequenceClassification` from `vinai/bertweet-base` + fresh head, 3 epochs on the EDOS train split (`lr=2e-5`, `batch=16`, `max_length=128`), saves the checkpoint to `outputs/models/bertweet-sexism/`. CPU works but is slow — Colab T4 recommended.
 - [x] **Restart the API after training.** The lifespan auto-detects the checkpoint at `LOCAL_MODEL_DIR` and loads it instead of the fresh-headed base — `/health` should report `"fresh_head": false`, and the edge cases the baseline misses (e.g. "Get back to the kitchen where you belong") should flip to *sexist*.
 - [ ] **Ensure train/inference preprocessing parity.** The fine-tuning cells in `04` train on *cleaned* text (`clean_text` from `02`), but `model_manager.predict()` sends *raw* text to BERTweet. Pick one side and align both paths.
-- [ ] **Unify label handling.** Dataset labels are `"not sexist"` / `"sexist"` (with spaces); `LABEL_MAP` in settings still uses `"not_sexist"` / `"sexist"`.
+- [x] **Unify label handling.** Dataset labels are `"not sexist"` / `"sexist"` (with spaces); `LABEL_MAP` in settings still uses `"not_sexist"` / `"sexist"`.
 - [ ] **CORS `allow_origins=["*"]` with `allow_credentials=True`** is an insecure combination — restrict origins before any real deployment.
 - [ ] **Use full label set or document binary-only choice.** EDOS has hierarchical labels (`label_sexist`, `label_category`, `label_vector`) — decide: binary only, or add category/vector classification.
 - [ ] **Uncomment/decide on optional deps** (redis, slowapi, prometheus) — or remove the dead `CACHE_TTL` / rate-limit promises from the README if not implementing.

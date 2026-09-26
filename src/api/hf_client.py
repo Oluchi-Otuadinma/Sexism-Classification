@@ -18,27 +18,20 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-# Configure logging
+# Configure logging (format/level come from settings — single source of truth)
+from src.config.settings import LOG_FORMAT, LOG_LEVEL
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=LOG_LEVEL,
+    format=LOG_FORMAT
 )
 logger = logging.getLogger(__name__)
 
 # Import from your config (adjust path as needed)
-try:
-    from src.config.settings import HF_API_KEY, HF_MODEL
-except ImportError:
-    # Fallback for testing
-    import os
-    HF_API_KEY = os.getenv("HF_API_KEY", "")
-    HF_MODEL = os.getenv("HF_MODEL", "")
+from src.config.settings import CACHE_SIZE, HF_API_KEY, HF_MODEL, MAX_TEXT_LENGTH
 
 # Constants
 API_URL = f"https://router.huggingface.co/hf-inference/models/{HF_MODEL}"
 HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"}
-MAX_TEXT_LENGTH = 5000  # Truncate very long texts
-CACHE_SIZE = 1000  # LRU cache size
 REQUEST_TIMEOUT = (10, 30)  # (connect timeout, read timeout) in seconds
 
 

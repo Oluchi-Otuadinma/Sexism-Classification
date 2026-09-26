@@ -22,18 +22,17 @@ from pydantic import BaseModel, Field, field_validator
 from src.api.hf_client import get_client
 from src.api.model_manager import ModelManager
 from src.config.settings import (
+    CACHE_SIZE,
     INFERENCE_BACKEND,
     LOCAL_MODEL_DIR,
+    LOG_FORMAT,
+    LOG_LEVEL,
     MODEL_ID,
     PRELOAD_MODEL,
-    CACHE_SIZE,
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Configure logging (level/format from settings — single source of truth)
+logging.basicConfig(level=LOG_LEVEL, format=LOG_FORMAT)
 logger = logging.getLogger(__name__)
 
 # ------------------------------------------------------------------ lifespan

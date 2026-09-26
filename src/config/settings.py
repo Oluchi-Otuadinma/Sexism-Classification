@@ -6,7 +6,6 @@ This module loads environment variables and provides configuration constants.
 
 import os
 from pathlib import Path
-from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -40,7 +39,7 @@ HF_MODEL: str = os.getenv("HF_MODEL", "your-model-name")
 HF_TOKEN: str = os.getenv("HF_TOKEN", "")  # For pushing to HuggingFace Hub
 
 # Dataset Configuration
-DATASET_PATH: str = os.getenv("DATASET_PATH", str(RAW_DATA_DIR / "sexism_dataset.csv"))
+DATASET_PATH: str = os.getenv("DATASET_PATH", str(RAW_DATA_DIR / "dev.csv"))
 TEXT_COLUMN: str = os.getenv("TEXT_COLUMN", "text")
 LABEL_COLUMN: str = os.getenv("LABEL_COLUMN", "label")
 
@@ -183,79 +182,4 @@ def print_config():
     print("=" * 60)
 
 
-# Example .env template
-ENV_TEMPLATE = """
-# HuggingFace Configuration
-HF_API_KEY=your_huggingface_api_key_here
-HF_MODEL=your_username/your_model_name
-HF_TOKEN=your_huggingface_token_for_pushing_models
-
-# Dataset Configuration
-DATASET_PATH=data/raw/sexism_dataset.csv
-TEXT_COLUMN=text
-LABEL_COLUMN=label
-
-# Training Configuration
-RANDOM_SEED=42
-TEST_SIZE=0.2
-VAL_SIZE=0.1
-BATCH_SIZE=16
-LEARNING_RATE=2e-5
-NUM_EPOCHS=3
-
-# Model Configuration
-BERT_MODEL_NAME=bert-base-uncased
-MAX_LENGTH=128
-
-# Preprocessing
-PREPROCESSING_PRESET=standard
-MIN_TEXT_LENGTH=10
-MAX_TEXT_LENGTH=5000
-
-# API Configuration
-API_HOST=0.0.0.0
-API_PORT=8000
-API_WORKERS=1
-API_RELOAD=True
-
-# Logging
-LOG_LEVEL=INFO
-
-# Cache
-ENABLE_CACHE=True
-CACHE_SIZE=1000
-CACHE_TTL=3600
-"""
-
-
-def create_env_template(filepath: Optional[Path] = None):
-    """
-    Create a .env.example file with template configuration.
-    
-    Args:
-        filepath: Path to save template (default: PROJECT_ROOT/.env.example)
-    """
-    if filepath is None:
-        filepath = PROJECT_ROOT / ".env.example"
-    
-    with open(filepath, "w") as f:
-        f.write(ENV_TEMPLATE.strip())
-    
-    print(f"Created .env template at {filepath}")
-    print("\nTo use:")
-    print("1. Copy .env.example to .env")
-    print("2. Fill in your actual values")
-    print("3. Add .env to .gitignore")
-
-
-if __name__ == "__main__":
-    # Validate and print configuration
-    try:
-        validate_config()
-        print("✓ Configuration is valid\n")
-        print_config()
-    except ValueError as e:
-        print(f"✗ Configuration validation failed:\n{e}")
-    
-    # Optionally create .env template
-    create_env_template()
+# NOTE: the .env template lives in .env.example at the project root

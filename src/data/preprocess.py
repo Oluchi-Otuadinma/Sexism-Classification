@@ -30,8 +30,6 @@ try:
 except LookupError:
     nltk.download('wordnet', quiet=True)
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

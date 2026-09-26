@@ -12,8 +12,6 @@ from typing import Optional, Tuple, Union
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Project paths (adjust as needed)

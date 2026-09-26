@@ -2,6 +2,9 @@ data/raw/*
 !data/raw/dev.csv
 data/processed/*
 !data/processed/.gitkeep
+!data/processed/train.csv
+!data/processed/dev.csv
+!data/processed/test.csv
 outputs/models/*
 !outputs/models/.gitkeep
 outputs/logs/*

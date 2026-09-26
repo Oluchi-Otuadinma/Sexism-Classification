@@ -91,7 +91,7 @@ CACHE_TTL: int = int(os.getenv("CACHE_TTL", "3600"))  # seconds
 
 # Label Mapping (customize for your dataset)
 LABEL_MAP = {
-    "not_sexist": 0,
+    "not sexist": 0,
     "sexist": 1
 }
 INVERSE_LABEL_MAP = {v: k for k, v in LABEL_MAP.items()}

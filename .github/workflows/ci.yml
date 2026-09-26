@@ -31,3 +31,20 @@ jobs:
           PRELOAD_MODEL: false  # tests must not download real model weights
         run: |
           pytest tests/ -v
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the Docker image
+        run: docker build -t sexism-classifier:ci .
+
+      - name: Smoke test the container
+        run: |
+          docker run -d --name sexism-ci -p 8000:8000 \
+            -e PRELOAD_MODEL=false \
+            -e INFERENCE_BACKEND=local \
+            sexism-classifier:ci
+          sleep 8
+          curl -sf http://localhost:8000/health | tee /dev/stderr | grep -q '"status":"healthy"'

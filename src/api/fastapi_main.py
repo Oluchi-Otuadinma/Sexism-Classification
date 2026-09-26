@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field, field_validator
 from src.api.hf_client import get_client
 from src.api.model_manager import ModelManager
 from src.config.settings import (
+    API_SECRET_KEY,
     CACHE_SIZE,
     INFERENCE_BACKEND,
     LOCAL_MODEL_DIR,
@@ -204,6 +205,28 @@ async def log_requests(request: Request, call_next):
     )
     
     return response
+
+
+# ------------------------------------------------------------------ security
+# Optional API-key auth: when API_SECRET_KEY is set, every endpoint except
+# /, /health and /docs requires an X-API-Key header. Empty (default) = open.
+PUBLIC_PATHS = {"/", "/health", "/docs", "/redoc", "/openapi.json"}
+
+
+@app.middleware("http")
+async def api_key_auth(request: Request, call_next):
+    if API_SECRET_KEY and request.url.path not in PUBLIC_PATHS:
+        if request.headers.get("X-API-Key") != API_SECRET_KEY:
+            logger.warning(f"Rejected {request.method} {request.url.path}: missing/invalid X-API-Key")
+            return JSONResponse(
+                status_code=403,
+                content={
+                    "error": "Forbidden: set the X-API-Key header "
+                             "(value of API_SECRET_KEY) to access this endpoint",
+                    "error_type": "auth_error",
+                },
+            )
+    return await call_next(request)
 
 
 # Endpoints

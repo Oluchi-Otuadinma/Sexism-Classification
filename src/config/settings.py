@@ -34,9 +34,15 @@ for directory in [
     directory.mkdir(parents=True, exist_ok=True)
 
 # API Configuration
-HF_API_KEY: str = os.getenv("HF_API_KEY", "")
+# HF_TOKEN is the HuggingFace-standard name (HUGGING_FACE_HUB_TOKEN also
+# accepted; HF_API_KEY kept as a legacy fallback). Used for inference,
+# Hub pushes, and notebook 05 exports.
+HF_TOKEN: str = (
+    os.getenv("HF_TOKEN")
+    or os.getenv("HUGGING_FACE_HUB_TOKEN")
+    or os.getenv("HF_API_KEY", "")
+)
 HF_MODEL: str = os.getenv("HF_MODEL", "your-model-name")
-HF_TOKEN: str = os.getenv("HF_TOKEN", "")  # For pushing to HuggingFace Hub
 
 # Dataset Configuration
 DATASET_PATH: str = os.getenv("DATASET_PATH", str(RAW_DATA_DIR / "dev.csv"))
@@ -84,6 +90,10 @@ PRELOAD_MODEL: bool = os.getenv("PRELOAD_MODEL", "True").lower() == "true"
 LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
 LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
+# Security: when set, all endpoints except /, /health and /docs require
+# the X-API-Key header to match this value. Empty string = auth disabled.
+API_SECRET_KEY: str = os.getenv("API_SECRET_KEY", "")
+
 # Cache Configuration
 ENABLE_CACHE: bool = os.getenv("ENABLE_CACHE", "True").lower() == "true"
 CACHE_SIZE: int = int(os.getenv("CACHE_SIZE", "1000"))
@@ -111,8 +121,8 @@ def validate_config() -> bool:
     errors = []
     
     # Check required API keys
-    if not HF_API_KEY and os.getenv("REQUIRE_HF_API_KEY", "False").lower() == "true":
-        errors.append("HF_API_KEY is required but not set")
+    if not HF_TOKEN and os.getenv("REQUIRE_HF_TOKEN", "False").lower() == "true":
+        errors.append("HF_TOKEN is required but not set")
     
     if not HF_MODEL:
         errors.append("HF_MODEL must be specified")
@@ -166,7 +176,7 @@ def print_config():
     print(f"BERT Model:       {BERT_MODEL_NAME}")
     print(f"Max Length:       {MAX_LENGTH}")
     print(f"HF Model:         {HF_MODEL}")
-    print(f"HF API Key:       {'*' * 10 if HF_API_KEY else 'Not set'}")
+    print(f"HF Token:         {'*' * 10 if HF_TOKEN else 'Not set'}")
     
     print("\n[API]")
     print(f"Host:             {API_HOST}")

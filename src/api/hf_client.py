@@ -27,11 +27,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Import from your config (adjust path as needed)
-from src.config.settings import CACHE_SIZE, HF_API_KEY, HF_MODEL, MAX_TEXT_LENGTH
+from src.config.settings import CACHE_SIZE, HF_MODEL, HF_TOKEN, MAX_TEXT_LENGTH
 
 # Constants
 API_URL = f"https://router.huggingface.co/hf-inference/models/{HF_MODEL}"
-HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"}
+HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"} if HF_TOKEN else {}
 REQUEST_TIMEOUT = (10, 30)  # (connect timeout, read timeout) in seconds
 
 
@@ -168,6 +168,13 @@ class HuggingFaceClient:
             return {"error": error_msg, "error_type": "unknown"}
     
     def predict(self, text: str) -> Dict:
+        if not HF_TOKEN:
+            return {
+                "error": "HF_TOKEN is not set — add it to your .env (HuggingFace-standard name) "
+                         "or switch to INFERENCE_BACKEND=local to run the model in-process.",
+                "error_type": "config_error",
+            }
+
         """
         Predict sexism classification for the given text.
         

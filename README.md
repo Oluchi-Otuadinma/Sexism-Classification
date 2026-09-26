@@ -103,7 +103,7 @@ cp .env.example .env
 ```
 
 Required environment variables:
-- `HF_API_KEY`: Your HuggingFace API key
+- `HF_TOKEN`: Your HuggingFace token (standard HF name — `HUGGING_FACE_HUB_TOKEN` and the legacy `HF_API_KEY` are also accepted)
 - `HF_MODEL`: Your model name on HuggingFace
 - `DATASET_PATH`: Path to your dataset
 
@@ -152,6 +152,7 @@ curl -X POST "http://localhost:8000/predict" \
 ```http
 POST /predict
 Content-Type: application/json
+X-API-Key: your_fastapi_secret_key
 
 {
   "text": "Your text here"
@@ -172,6 +173,7 @@ Response:
 ```http
 POST /predict/batch
 Content-Type: application/json
+X-API-Key: your_fastapi_secret_key
 
 {
   "texts": ["Text 1", "Text 2", "Text 3"]
@@ -265,7 +267,9 @@ Configuration is managed through `src/config/settings.py` and environment variab
 
 Key settings:
 - `PREPROCESSING_PRESET`: "minimal", "standard", or "aggressive"
-- `INFERENCE_BACKEND`: "local" (transformers, loaded at startup via lifespan) or "hf_api" (HuggingFace Inference API)
+- `INFERENCE_BACKEND`: how the API classifies text —
+  - **"local"** (default): loads weights from `LOCAL_MODEL_DIR` (`outputs/models/bertweet-sexism`) or downloads `vinai/bertweet-base` directly into memory via `transformers` at startup (FastAPI lifespan)
+  - **"hf_api"**: calls the HuggingFace Inference API via `HF_TOKEN` (no local weights; clear config error if `HF_TOKEN` is unset)
 - `MODEL_ID`: base model to download and attach a fresh classification head to (default `vinai/bertweet-base`)
 - `LOCAL_MODEL_DIR`: fine-tuned checkpoint directory — loaded instead of `MODEL_ID` when present (default `outputs/models/bertweet-sexism`)
 - `PRELOAD_MODEL`: load the model at startup (`True`) or defer to the first request (`False`)
@@ -324,8 +328,9 @@ docker build -t sexism-classifier .
 2. **Run container**
 ```bash
 docker run -p 8000:8000 \
-  -e HF_API_KEY=your_key \
+  -e HF_TOKEN=your_hf_token \
   -e HF_MODEL=your_model \
+  -e API_SECRET_KEY=your_fastapi_secret_key \
   sexism-classifier
 ```
 

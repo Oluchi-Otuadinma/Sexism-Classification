@@ -19,5 +19,5 @@ if str(ROOT) not in sys.path:
 
 os.environ.setdefault("PRELOAD_MODEL", "false")
 os.environ.setdefault("INFERENCE_BACKEND", "local")
-os.environ.setdefault("HF_API_KEY", "test-key-not-real")
+os.environ.setdefault("HF_TOKEN", "test-token-not-real")
 os.environ.setdefault("HF_MODEL", "test/model")

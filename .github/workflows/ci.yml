@@ -25,7 +25,7 @@ jobs:
 
       - name: Run tests
         env:
-          HF_API_KEY: test-key-not-real
+          HF_TOKEN: test-token-not-real
           HF_MODEL: test/model
           INFERENCE_BACKEND: local
           PRELOAD_MODEL: false  # tests must not download real model weights

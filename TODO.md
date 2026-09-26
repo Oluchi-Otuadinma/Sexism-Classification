@@ -19,7 +19,7 @@
 - [x] **Deduplicate configuration (single sources of truth).** Removed `ENV_TEMPLATE`/`create_env_template()` from `settings.py` (stale second copy of the env template); `hf_client.py` now imports `HF_API_KEY`/`HF_MODEL`/`MAX_TEXT_LENGTH`/`CACHE_SIZE` and logging config from `settings` instead of redefining them; library modules no longer call `logging.basicConfig`. All 32 settings env vars are documented in `.env.example`.
 - [x] **Fix config default.** `DATASET_PATH` now defaults to `data/raw/dev.csv` (was the nonexistent `sexism_dataset.csv`); `.env.example` and `settings.py` agree.
 - [x] **Track `outputs/` scaffolding.** `outputs/{models,logs,reports,inference}` committed as `.gitkeep` placeholders (contents still gitignored) so fresh clones match the README structure.
-- [ ] **Unify label handling.** Dataset labels are `"not sexist"` / `"sexist"` (with spaces), but `LABEL_MAP` in settings still uses `"not_sexist"` / `"sexist"` — align them.
+- [x] **Unify label handling.** Dataset labels are `"not sexist"` / `"sexist"` (with spaces), but `LABEL_MAP` in settings still uses `"not_sexist"` / `"sexist"` — align them.
 - [ ] **CORS `allow_origins=["*"]` with `allow_credentials=True`** is an insecure combination — restrict origins before any real deployment.
 
 ## 🔧 Improvements to existing code
